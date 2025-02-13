@@ -2,10 +2,22 @@ from flask import Blueprint, request, render_template, redirect, url_for, sessio
 from whatsthedamage.whatsthedamage import main as process_csv
 from whatsthedamage.config import AppArgs
 import os
+import shutil
 
 bp = Blueprint('main', __name__)
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def clear_upload_folder():
+    for filename in os.listdir(UPLOAD_FOLDER):
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
 
 @bp.route('/')
 def index():
@@ -47,6 +59,8 @@ def process():
     result = result.replace('<tbody>', '<tbody class="table-group-divider">')
     result = result.replace('<thead>', '<thead class="table-dark">')
 
+    # Clear the upload folder after processing
+    clear_upload_folder()
 
     if args['output_format'] == 'html':
         return render_template('result.html', table=result)
