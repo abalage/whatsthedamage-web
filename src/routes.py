@@ -1,6 +1,7 @@
-from flask import Blueprint, request, render_template, redirect, url_for, session
+from flask import Blueprint, request, render_template, redirect, url_for, session, flash
 from whatsthedamage.whatsthedamage import main as process_csv
 from whatsthedamage.config import AppArgs
+from forms import UploadForm
 import os
 import shutil
 
@@ -21,50 +22,59 @@ def clear_upload_folder():
 
 @bp.route('/')
 def index():
-    # Retrieve form data from session if available
-    form_data = session.get('form_data', {})
-    return render_template('index.html', form_data=form_data)
+    form = UploadForm()
+    return render_template('index.html', form=form)
 
 @bp.route('/process', methods=['POST'])
 def process():
-    file = request.files['filename']
-    if file:
-        filename = os.path.join(UPLOAD_FOLDER, file.filename)
-        file.save(filename)
+    form = UploadForm()
+    if form.validate_on_submit():
+        file = form.filename.data
+        if file:
+            filename = os.path.join(UPLOAD_FOLDER, file.filename)
+            file.save(filename)
 
-    config_file = request.files['config']
-    if config_file:
-        config = os.path.join(UPLOAD_FOLDER, config_file.filename)
-        config_file.save(config)
+        config_file = form.config.data
+        if config_file:
+            config = os.path.join(UPLOAD_FOLDER, config_file.filename)
+            config_file.save(config)
 
-    args: AppArgs = {
-        'filename': filename,
-        'start_date': request.form.get('start_date'),
-        'end_date': request.form.get('end_date'),
-        'verbose': 'verbose' in request.form,
-        'config': config,
-        'category': 'category',
-        'no_currency_format': 'no_currency_format' in request.form,
-        'output_format': request.form.get('output_format', 'html'),
-        'filter': request.form.get('filter')
-    }
+        args: AppArgs = {
+            'filename': filename,
+            'start_date': form.start_date.data.strftime('%Y-%m-%d') if form.start_date.data else None,
+            'end_date': form.end_date.data.strftime('%Y-%m-%d') if form.end_date.data else None,
+            'verbose': form.verbose.data,
+            'config': config,
+            'category': 'category',
+            'no_currency_format': form.no_currency_format.data,
+            'output_format': 'html',
+            'filter': form.filter.data
+        }
 
-    # Store form data in session
-    session['form_data'] = request.form.to_dict()
+        # Store form data in session
+        session['form_data'] = request.form.to_dict()
 
-    result = process_csv(args)
-    # Hack to make the table look better with Bootstrap as Pandas' CSS support is limited
-    # Also this leaves the choice of output format to the frontend
-    result = result.replace('<table class="dataframe">', '<table class="table table-bordered table-striped">')
-    result = result.replace('<tbody>', '<tbody class="table-group-divider">')
-    result = result.replace('<thead>', '<thead class="table-dark">')
+        try:
+            result = process_csv(args)
+        except Exception as e:
+            flash(f'Error processing CSV: {e}')
+            return redirect(url_for('main.index'))
 
-    # Clear the upload folder after processing
-    clear_upload_folder()
+        # Hack to make the table look better with Bootstrap as Pandas' CSS support is limited
+        # Also this leaves the choice of output format to the frontend
+        result = result.replace('<table class="dataframe">', '<table class="table table-bordered table-striped">')
+        result = result.replace('<tbody>', '<tbody class="table-group-divider">')
+        result = result.replace('<thead>', '<thead class="table-dark">')
 
-    if args['output_format'] == 'html':
-        return render_template('result.html', table=result)
-    elif args['output']:
-        return redirect(url_for('main.index'))
+        # Clear the upload folder after processing
+        clear_upload_folder()
+
+        if args['output_format'] == 'html':
+            return render_template('result.html', table=result)
+        elif args['output']:
+            return redirect(url_for('main.index'))
+        else:
+            return f"<pre>{result}</pre>"
     else:
-        return f"<pre>{result}</pre>"
+        flash('Form validation failed. Please check your inputs.')
+        return redirect(url_for('main.index'))
