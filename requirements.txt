@@ -1,0 +1,3 @@
+#whatsthedamage>=0.3.0
+git+https://github.com/abalage/whatsthedamage.git@main#egg=whatsthedamage
+flask>=2.0.0

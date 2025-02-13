@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whatsthedamage-web"
+dynamic = ["version"]
+description = "Web application to whatsthedamage written in Flask"
+keywords = ["web", "account", "report"]
+readme = "README.md"
+authors = [
+    { name = "Balázs NÉMETH", email = "balagetech@protonmail.com" }
+]
+maintainers = [
+  {name = "Balázs NÉMETH", email = "balagetech@protonmail.com"}
+]
+classifiers=[
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    'Operating System :: OS Independent',
+]
+license = {text = "GNU General Public License v3"}
+requires-python = ">= 3.9"
+dependencies = [
+    "whatsthedamage>=0.3.0",
+    "flask>=2.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "coverage",  # testing
+    "mypy",  # linting
+    "pytest",  # testing
+    "pytest-cov",  # testing
+    "ruff",  # linting
+    "mccabe", # linting
+]
+
+[project.urls]
+bugs = "https://github.com/abalage/whatsthedamage-web/issues"
+changelog = "https://github.com/abalage/whatsthedamage-web/blob/master/changelog.md"
+homepage = "https://github.com/abalage/whatsthedamage-web"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools_scm]
+
+[tool.setuptools.package-data]
+"*" = ["*.*"]
+
+# Mypy
+# ----
+
+[tool.mypy]
+files = "src"
+
+# Use strict defaults
+strict = true
+warn_unreachable = true
+warn_no_return = true
