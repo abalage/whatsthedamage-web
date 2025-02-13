@@ -41,6 +41,12 @@ def process():
     session['form_data'] = request.form.to_dict()
 
     result = process_csv(args)
+    # Hack to make the table look better with Bootstrap as Pandas' CSS support is limited
+    # Also this leaves the choice of output format to the frontend
+    result = result.replace('<table class="dataframe">', '<table class="table table-bordered table-striped">')
+    result = result.replace('<tbody>', '<tbody class="table-group-divider">')
+    result = result.replace('<thead>', '<thead class="table-dark">')
+
 
     if args['output_format'] == 'html':
         return render_template('result.html', table=result)

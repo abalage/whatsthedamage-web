@@ -8,53 +8,72 @@
 </head>
 <body>
     <div class="container">
-        <h1>What's the Damage</h1>
+        <h1 class="text-center p-2 pb-1">What's the Damage</h1>
+        <h5 class="text-center p-2">A tool to process your KHBHU bank account history exported in a CSV file.</h5>
         <form action="/process" method="post" enctype="multipart/form-data">
             <div class="row">
-                <fieldset class="col-md-6">
-                    <legend>File Uploads</legend>
-                    <div class="mb-3">
-                        <label for="filename" class="form-label">CSV file:</label>
-                        <input type="file" class="form-control" id="filename" name="filename" aria-describedby="fileHelp" required>
-                        <div id="fileHelp" class="form-text">Upload your exported bank account history in CSV file here.</div>
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            File Uploads
+                        </div>
+                        <div class="card-body bg-light">
+                            <div class="mb-3">
+                                <label for="filename" class="form-label">CSV file:</label>
+                                <input type="file" class="form-control" id="filename" name="filename" aria-describedby="fileHelp" required>
+                                <div id="fileHelp" class="form-text">Upload your exported bank account history in CSV file here.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="config" class="form-label">Config file:</label>
+                                <input type="file" class="form-control" id="config" name="config" aria-describedby="configHelp" required>
+                                <div id="configHelp" class="form-text">Upload your configuration file here.</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="config" class="form-label">Config file:</label>
-                        <input type="file" class="form-control" id="config" name="config" aria-describedby="configHelp" required>
-                        <div id="configHelp" class="form-text">Upload your configuration file here.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Filters
+                        </div>
+                        <div class="card-body bg-light">
+                            <div class="mb-3">
+                                <label for="start_date" class="form-label">Start Date:</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" aria-describedby="dateStartHelp" value="{{ form_data.get('start_date', '') }}">
+                                <div id="dateStartHelp" class="form-text">Filter results starting from this date.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="end_date" class="form-label">End Date:</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" aria-describedby="dateEndHelp" value="{{ form_data.get('end_date', '') }}">
+                                <div id="dateEndHelp" class="form-text">Filter results up until this date.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="filter" class="form-label">Filter:</label>
+                                <input type="text" class="form-control" id="filter" name="filter" aria-describedby="filterHelp" placeholder="Enter the name of category" value="{{ form_data.get('filter', '') }}">
+                                <div id="filterHelp" class="form-text">Filter by category.</div>
+                            </div>
+                        </div>
                     </div>
-                </fieldset>
-                <fieldset class="col-md-6">
-                    <legend>Filters</legend>
-                    <div class="mb-3">
-                        <label for="start_date" class="form-label">Start Date:</label>
-                        <input type="date" class="form-control" id="start_date" name="start_date" aria-describedby="dateStartHelp" value="{{ form_data.get('start_date', '') }}">
-                        <div id="dateStartHelp" class="form-text">Filter results starting from this date.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="end_date" class="form-label">End Date:</label>
-                        <input type="date" class="form-control" id="end_date" name="end_date" aria-describedby="dateEndHelp" value="{{ form_data.get('end_date', '') }}">
-                        <div id="dateEndHelp" class="form-text">Filter results up until this date.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="filter" class="form-label">Filter:</label>
-                        <input type="text" class="form-control" id="filter" name="filter" aria-describedby="filterHelp" placeholder="Enter the name of category" value="{{ form_data.get('filter', '') }}">
-                        <div id="filterHelp" class="form-text">Filter by category.</div>
-                    </div>
-                </fieldset>
+                </div>
             </div>
             <div class="row">
-                <fieldset class="col-md-12">
-                    <legend>Advanced settings</legend>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="verbose" name="verbose" {% if form_data.get('verbose') %}checked{% endif %}>
-                        <label class="form-check-label" for="verbose">Verbose logs (only appear in server logs)</label>
+                <div class="col-md-12 mb-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Advanced settings
+                        </div>
+                        <div class="card-body bg-light">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="verbose" name="verbose" {% if form_data.get('verbose') %}checked{% endif %}>
+                                <label class="form-check-label" for="verbose">Verbose logs (only appear in server logs)</label>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="no_currency_format" name="no_currency_format" {% if form_data.get('no_currency_format') %}checked{% endif %}>
+                                <label class="form-check-label" for="no_currency_format">No Currency Format</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="no_currency_format" name="no_currency_format" {% if form_data.get('no_currency_format') %}checked{% endif %}>
-                        <label class="form-check-label" for="no_currency_format">No Currency Format</label>
-                    </div>
-                </fieldset>
+                </div>
             </div>
             <button type="submit" class="btn btn-primary mt-3">Submit</button>
         </form>
