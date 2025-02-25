@@ -3,3 +3,4 @@ git+https://github.com/abalage/whatsthedamage.git@main#egg=whatsthedamage
 flask>=2.0.0
 Flask-WTF>=1.2.2
 wtforms>=3.2.1
+werkzeug>=3.1.0

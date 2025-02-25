@@ -23,7 +23,10 @@ license = {text = "GNU General Public License v3"}
 requires-python = ">= 3.9"
 dependencies = [
     "whatsthedamage>=0.3.0",
-    "flask>=2.0.0"
+    "flask>=2.0.0",
+    "Flask-WTF>=1.2.2",
+    "wtforms>=3.2.1",
+    "werkzeug>=3.1.0",
 ]
 
 [project.optional-dependencies]
@@ -54,6 +57,7 @@ package-dir = {"" = "src"}
 
 [tool.mypy]
 files = "src"
+ignore_missing_imports = true
 
 # Use strict defaults
 strict = true

@@ -2,7 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import FileField, DateField, StringField, BooleanField
 from wtforms.validators import DataRequired, Optional
 
-class UploadForm(FlaskForm):
+
+class UploadForm(FlaskForm):  # type: ignore
     filename = FileField('CSV file', validators=[DataRequired()])
     config = FileField('Config file', validators=[DataRequired()])
     start_date = DateField('Start Date:', format='%Y-%m-%d', render_kw={
