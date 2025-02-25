@@ -3,15 +3,16 @@ from routes import bp as main_bp
 import os
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 
 # Set the secret key to a random value
 app.secret_key = os.urandom(24)
 
-app.register_blueprint(main_bp)
+# Ensure the upload folder exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+app.register_blueprint(main_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
