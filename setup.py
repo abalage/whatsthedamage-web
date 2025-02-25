@@ -11,7 +11,7 @@ setup(
     description='Web application to whatsthedamage written in Flask',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    name='whatsthedamage-web',
+    name='whatsthedamage_web',
     python_requires='>=3.9',
     url='https://github.com/abalage/whatsthedamage-web',
 )
