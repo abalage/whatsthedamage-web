@@ -60,13 +60,6 @@ def process() -> Response:
         form.filename.data.save(filename_path)
         form.config.data.save(config_path)
 
-        # Check if files are saved
-        if not os.path.exists(filename_path):
-            flash(f"Failed to save file {filename} to {filename_path}")
-
-        if not os.path.exists(config_path):
-            flash(f"Failed to save config file {config} to {config_path}")
-
         args: AppArgs = AppArgs(
             filename=filename_path,
             start_date=form.start_date.data.strftime('%Y-%m-%d') if form.start_date.data else None,
