@@ -40,7 +40,7 @@ def index() -> Response:
         for date_field in ['start_date', 'end_date']:
             date_value: Optional[str] = form_data.get(date_field)
             if date_value:
-                setattr(form, date_field, datetime.strptime(date_value, '%Y-%m-%d'))
+                getattr(form, date_field).data = datetime.strptime(date_value, '%Y-%m-%d')
 
         form.verbose.data = bool(form_data.get('verbose', False))
         form.no_currency_format.data = bool(form_data.get('no_currency_format', False))
