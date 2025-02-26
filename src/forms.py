@@ -4,8 +4,14 @@ from wtforms.validators import DataRequired, Optional
 
 
 class UploadForm(FlaskForm):  # type: ignore
-    filename = FileField('CSV file', validators=[DataRequired()])
-    config = FileField('Config file', validators=[DataRequired()])
+    filename = FileField('CSV file', render_kw={
+        'class': 'form-control',
+        'aria-describedby': 'fileHelp'
+    }, validators=[DataRequired()])
+    config = FileField('Config file', render_kw={
+        'class': 'form-control',
+        'aria-describedby': 'configHelp'
+    }, validators=[DataRequired()])
     start_date = DateField('Start Date:', format='%Y-%m-%d', render_kw={
         'class': 'form-control',
         'id': 'start_date',
@@ -16,6 +22,15 @@ class UploadForm(FlaskForm):  # type: ignore
         'id': 'end_date',
         'aria-describedby': 'dateEndHelp'
     }, validators=[Optional()])
-    filter = StringField('Filter')
-    verbose = BooleanField('Verbose logs')
-    no_currency_format = BooleanField('No Currency Format')
+    filter = StringField('Filter', render_kw={
+        'class': 'form-control',
+        'aria-describedby': 'filterHelp'
+    })
+    verbose = BooleanField('Verbose logs', render_kw={
+        'class': 'form-check-input',
+        'aria-describedby': 'verboseHelp'
+    })
+    no_currency_format = BooleanField('No Currency Format', render_kw={
+        'class': 'form-check-input',
+        'aria-describedby': 'currencyHelp'
+    })

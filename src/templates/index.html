@@ -91,10 +91,12 @@
                             <div class="mb-3 form-check">
                                 {{ form.verbose(class="form-check-input") }}
                                 {{ form.verbose.label(class="form-check-label") }}
+                                <div id="verboseHelp" class="form-text">Provide verbose logs in the backend service console.</div>
                             </div>
                             <div class="mb-3 form-check">
                                 {{ form.no_currency_format(class="form-check-input") }}
                                 {{ form.no_currency_format.label(class="form-check-label") }}
+                                <div id="currencyHelp" class="form-text">Use this to avoid currency symbols in the exported CSV. Change the cell format in the spreadsheet tool you have.</div>
                             </div>
                         </div>
                     </div>
