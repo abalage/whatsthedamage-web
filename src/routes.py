@@ -10,6 +10,8 @@ from whatsthedamage.config import AppArgs
 from whatsthedamage.whatsthedamage import main as process_csv
 import os
 import shutil
+import pandas as pd
+from io import StringIO
 
 bp: Blueprint = Blueprint('main', __name__)
 
@@ -92,6 +94,9 @@ def process() -> Response:
         result = result.replace('<tbody>', '<tbody class="table-group-divider">')
         result = result.replace('<thead>', '<thead class="table-dark">')
 
+        # Store the result in the session
+        session['result'] = result
+
         # Clear the upload folder after processing
         clear_upload_folder()
 
@@ -108,3 +113,26 @@ def clear() -> Response:
     session.pop('form_data', None)
     flash('Form data cleared.', 'success')
     return make_response(redirect(url_for('main.index')))
+
+
+@bp.route('/download', methods=['GET'])
+def download() -> Response:
+    result = session.get('result')
+    if not result:
+        flash('No result available for download.', 'danger')
+        return make_response(redirect(url_for('main.index')))
+
+    # Convert the HTML table to a DataFrame
+    df = pd.read_html(result)[0]
+
+    # Convert the DataFrame to CSV
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer, index=False)
+    csv_data = csv_buffer.getvalue()
+
+    # Create a response with the CSV data
+    response = make_response(csv_data)
+    response.headers['Content-Disposition'] = 'attachment; filename=result.csv'
+    response.headers['Content-Type'] = 'text/csv'
+
+    return response

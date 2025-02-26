@@ -1,5 +1,7 @@
 #whatsthedamage>=0.3.0
 git+https://github.com/abalage/whatsthedamage.git@main#egg=whatsthedamage
+pandas>=1.5.0
+lxml>=5.3.0
 flask>=2.0.0
 Flask-WTF>=1.2.2
 wtforms>=3.2.1
