@@ -8,10 +8,12 @@ from app import create_app
 
 @pytest.fixture
 def client():
-    app = create_app()
+    config = {
+        'TESTING': True,
+        'UPLOAD_FOLDER': '/tmp/uploads'
+    }
+    app = create_app(config_class=config)
     app.register_blueprint(bp, name='test_bp')
-    app.config['TESTING'] = True
-    app.config['UPLOAD_FOLDER'] = '/tmp/uploads'
     with app.test_client() as client:
         with app.app_context():
             yield client
@@ -62,10 +64,11 @@ def test_process_route(client, monkeypatch):
         'config': (BytesIO(read_file('tests/config.json.default')), 'config.json.default'),
         'start_date': '2023-01-01',
         'end_date': '2023-12-31',
-        'verbose': True,
-        'no_currency_format': True,
-        'filter': 'some_filter'
     }
+
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    os.makedirs(upload_folder, exist_ok=True)
+
     response = client.post('/process', data=data, content_type='multipart/form-data')
 
     if response.status_code != 200:
@@ -90,14 +93,14 @@ def test_clear_route(client):
 
 
 def test_clear_upload_folder(client):
-    upload_folder = current_app.config['UPLOAD_FOLDER']
-    os.makedirs(upload_folder, exist_ok=True)
-    test_file_path = os.path.join(upload_folder, 'test.txt')
-    with open(test_file_path, 'w') as f:
-        f.write('test content')
+    with client.application.app_context():
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        test_file_path = os.path.join(upload_folder, 'test.txt')
+        with open(test_file_path, 'w') as f:
+            f.write('test content')
 
-    clear_upload_folder()
-    assert not os.path.exists(test_file_path)
+        clear_upload_folder()
+        assert not os.path.exists(test_file_path)
 
 
 def test_process_route_invalid_data(client, monkeypatch):
@@ -120,7 +123,7 @@ def test_process_route_invalid_data(client, monkeypatch):
 
 
 def test_process_route_missing_file(client, monkeypatch):
-    def mock_process_csv(args):
+    def mock_process_csv():
         return "<table class='dataframe'></table>"
 
     monkeypatch.setattr('src.routes.process_csv', mock_process_csv)
@@ -132,14 +135,78 @@ def test_process_route_missing_file(client, monkeypatch):
         'config': (BytesIO(read_file('tests/config.json.default')), 'config.json.default'),
         'start_date': '2023-01-01',
         'end_date': '2023-12-31',
-        'verbose': 'y',
-        'no_currency_format': 'y',
-        'filter': 'some_filter'
     }
     response = client.post('/process', data=data, content_type='multipart/form-data')
     if response.status_code != 302:
         print_form_errors(client)
     assert response.status_code == 302  # Expecting a redirect due to missing file
+
+
+def test_process_route_missing_config(client, monkeypatch):
+    def mock_process_csv(args):
+        return "<table class='dataframe'></table>"
+
+    monkeypatch.setattr('src.routes.process_csv', mock_process_csv)
+
+    csrf_token = get_csrf_token(client)
+
+    data = {
+        'csrf_token': csrf_token,
+        'filename': (BytesIO(read_file('tests/sample.csv')), 'sample.csv'),
+        'start_date': '2023-01-01',
+        'end_date': '2023-12-31',
+    }
+    response = client.post('/process', data=data, content_type='multipart/form-data')
+    if response.status_code != 302:
+        print_form_errors(client)
+    assert response.status_code == 302  # Expecting a redirect due to missing config file
+
+
+def test_process_route_invalid_end_date(client, monkeypatch):
+    def mock_process_csv(args):
+        return "<table class='dataframe'></table>"
+
+    monkeypatch.setattr('src.routes.process_csv', mock_process_csv)
+
+    csrf_token = get_csrf_token(client)
+
+    data = {
+        'csrf_token': csrf_token,
+        'filename': (BytesIO(read_file('tests/sample.csv')), 'sample.csv'),
+        'config': (BytesIO(read_file('tests/config.json.default')), 'config.json.default'),
+        'start_date': '2023-01-01',
+        'end_date': 'invalid-date',
+    }
+    response = client.post('/process', data=data, content_type='multipart/form-data')
+    if response.status_code != 302:
+        print_form_errors(client)
+    assert response.status_code == 302  # Expecting a redirect due to invalid end date format
+    assert 'form_data' not in session
+
+
+def test_download_route_with_result(client, monkeypatch):
+    def mock_process_csv(args):
+        return "<table class='dataframe'><tr><td>Unnamed: 0</td><td>2023.01.01 - 2023.12.31</td></tr><tr><td>balance</td><td>0.0</td></tr></table>"
+
+    monkeypatch.setattr('src.routes.process_csv', mock_process_csv)
+
+    csrf_token = get_csrf_token(client)
+
+    data = {
+        'csrf_token': csrf_token,
+        'filename': (BytesIO(read_file('tests/sample.csv')), 'sample.csv'),
+        'config': (BytesIO(read_file('tests/config.json.default')), 'config.json.default'),
+        'start_date': '2023-01-01',
+        'end_date': '2023-12-31',
+        'no_currency_format': True,
+    }
+    client.post('/process', data=data, content_type='multipart/form-data')
+
+    response = client.get('/download')
+    assert response.status_code == 200
+    assert response.headers['Content-Disposition'] == 'attachment; filename=result.csv'
+    assert response.headers['Content-Type'] == 'text/csv'
+    assert b'Unnamed: 0,2023.01.01 - 2023.12.31\nbalance,0.0\n' in response.data
 
 
 def test_process_route_invalid_date(client, monkeypatch):
@@ -156,12 +223,9 @@ def test_process_route_invalid_date(client, monkeypatch):
         'config': (BytesIO(read_file('tests/config.json.default')), 'config.json.default'),
         'start_date': 'invalid-date',
         'end_date': '2023-12-31',
-        'verbose': 'y',
-        'no_currency_format': 'y',
-        'filter': 'some_filter'
     }
     response = client.post('/process', data=data, content_type='multipart/form-data')
     if response.status_code != 302:
         print_form_errors(client)
-    assert response.status_code == 302  # Expecting a redirect due to invalid date format
+    assert response.status_code == 302  # Expecting a redirect due to invalid start date format
     assert 'form_data' not in session

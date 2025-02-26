@@ -3,13 +3,20 @@ import os
 from routes import bp as main_bp
 
 
-def create_app() -> Flask:
-    app: Flask = Flask(__name__)
-    app.config['UPLOAD_FOLDER'] = 'uploads'
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+class AppConfig:
+    UPLOAD_FOLDER: str = 'uploads'
+    MAX_CONTENT_LENGTH: int = 16 * 1024 * 1024  # 16 MB
+    SECRET_KEY: bytes = os.urandom(24)
 
-    # Set the secret key to a random value
-    app.secret_key = os.urandom(24)
+
+def create_app(config_class: None) -> Flask:
+    app: Flask = Flask(__name__)
+
+    # Load default configuration from a class
+    app.config.from_object(AppConfig)
+
+    if config_class:
+        app.config.from_object(config_class)
 
     # Ensure the upload folder exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
