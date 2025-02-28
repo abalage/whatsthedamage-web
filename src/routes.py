@@ -116,7 +116,7 @@ def download() -> Response:
         return make_response(redirect(url_for('main.index')))
 
     # Convert the HTML table to a DataFrame
-    df = pd.read_html(result)[0]
+    df = pd.read_html(StringIO(result))[0]
 
     # Convert the DataFrame to CSV
     csv_buffer = StringIO()
