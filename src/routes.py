@@ -6,14 +6,24 @@ from flask import (
 from forms import UploadForm
 from typing import Optional
 from werkzeug.utils import secure_filename
+from werkzeug.security import safe_join
 from whatsthedamage.config import AppArgs
 from whatsthedamage.whatsthedamage import main as process_csv
 import os
 import shutil
 import pandas as pd
 from io import StringIO
+import magic
 
 bp: Blueprint = Blueprint('main', __name__)
+
+ALLOWED_EXTENSIONS = {'csv', 'json'}
+
+
+def allowed_file(file_path: str) -> bool:
+    mime = magic.Magic(mime=True)
+    file_type = mime.from_file(file_path)
+    return file_type in {'text/csv', 'text/plain', 'application/json'}
 
 
 def clear_upload_folder() -> None:
@@ -55,10 +65,15 @@ def process() -> Response:
         upload_folder: str = current_app.config['UPLOAD_FOLDER']
         filename: str = secure_filename(form.filename.data.filename)
         config: str = secure_filename(form.config.data.filename)
-        filename_path: str = os.path.join(upload_folder, filename)
-        config_path: str = os.path.join(upload_folder, config)
+
+        filename_path: str = safe_join(upload_folder, filename)  # type: ignore
+        config_path: str = safe_join(upload_folder, config)  # type: ignore
         form.filename.data.save(filename_path)
         form.config.data.save(config_path)
+
+        if not allowed_file(filename_path) or not allowed_file(config_path):
+            flash('Invalid file type. Only CSV and JSON files are allowed.', 'danger')
+            return make_response(redirect(url_for('main.index')))
 
         args: AppArgs = AppArgs(
             filename=filename_path,

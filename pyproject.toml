@@ -29,6 +29,7 @@ dependencies = [
     "Flask-WTF>=1.2.2",
     "wtforms>=3.2.1",
     "werkzeug>=3.1.0",
+    "python-magic>=0.4.27"
 ]
 
 [project.optional-dependencies]

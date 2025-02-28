@@ -8,7 +8,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('downloadCSVButton').addEventListener('click', function() {
-                fetch('/download', { method: 'GET' })
+                fetch('/download', { method: 'GET', credentials: 'same-origin' })
                     .then(response => response.blob())
                     .then(blob => {
                         const url = window.URL.createObjectURL(blob);
