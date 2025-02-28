@@ -1,6 +1,7 @@
 from flask import Flask
 import os
 from routes import bp as main_bp
+from typing import Optional
 
 
 class AppConfig:
@@ -9,7 +10,7 @@ class AppConfig:
     SECRET_KEY: bytes = os.urandom(24)
 
 
-def create_app(config_class=None) -> Flask:
+def create_app(config_class: Optional[AppConfig] = None) -> Flask:
     app: Flask = Flask(__name__)
 
     # Load default configuration from a class
