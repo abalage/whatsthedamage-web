@@ -186,7 +186,9 @@ def test_process_route_invalid_end_date(client, monkeypatch):
 
 def test_download_route_with_result(client, monkeypatch):
     def mock_process_csv(args):
-        return "<table class='dataframe'><tr><td>Unnamed: 0</td><td>2023.01.01 - 2023.12.31</td></tr><tr><td>balance</td><td>0.0</td></tr></table>"
+        return ("<table class='dataframe'><tr><td>Unnamed: 0</td>"
+                "<td>2023.01.01 - 2023.12.31</td></tr><tr><td>balance</td>"
+                "<td>0.0</td></tr></table>")
 
     monkeypatch.setattr('src.routes.process_csv', mock_process_csv)
 
