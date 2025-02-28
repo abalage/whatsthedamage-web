@@ -9,7 +9,7 @@ class AppConfig:
     SECRET_KEY: bytes = os.urandom(24)
 
 
-def create_app(config_class: None) -> Flask:
+def create_app(config_class=None) -> Flask:
     app: Flask = Flask(__name__)
 
     # Load default configuration from a class
@@ -27,5 +27,5 @@ def create_app(config_class: None) -> Flask:
 
 
 if __name__ == '__main__':
-    app = create_app()
+    app = create_app(None)
     app.run(debug=True)
