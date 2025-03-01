@@ -4,14 +4,14 @@ from wtforms.validators import DataRequired, Optional
 
 
 class UploadForm(FlaskForm):  # type: ignore
-    filename = FileField('CSV file', render_kw={
+    filename = FileField('CSV file:', render_kw={
         'class': 'form-control',
         'aria-describedby': 'fileHelp'
     }, validators=[DataRequired()])
-    config = FileField('Config file', render_kw={
+    config = FileField('Config file:', render_kw={
         'class': 'form-control',
         'aria-describedby': 'configHelp'
-    }, validators=[DataRequired()])
+    }, validators=[Optional()])
     start_date = DateField('Start Date:', format='%Y-%m-%d', render_kw={
         'class': 'form-control',
         'id': 'start_date',
@@ -22,7 +22,7 @@ class UploadForm(FlaskForm):  # type: ignore
         'id': 'end_date',
         'aria-describedby': 'dateEndHelp'
     }, validators=[Optional()])
-    filter = StringField('Filter', render_kw={
+    filter = StringField('Filter:', render_kw={
         'class': 'form-control',
         'aria-describedby': 'filterHelp'
     })

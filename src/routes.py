@@ -64,14 +64,21 @@ def process() -> Response:
     if form.validate_on_submit():
         upload_folder: str = current_app.config['UPLOAD_FOLDER']
         filename: str = secure_filename(form.filename.data.filename)
-        config: str = secure_filename(form.config.data.filename)
-
         filename_path: str = safe_join(upload_folder, filename)  # type: ignore
-        config_path: str = safe_join(upload_folder, config)  # type: ignore
         form.filename.data.save(filename_path)
-        form.config.data.save(config_path)
 
-        if not allowed_file(filename_path) or not allowed_file(config_path):
+        config_path: Optional[str] = None
+        if form.config.data:
+            config: str = secure_filename(form.config.data.filename)
+            config_path = safe_join(upload_folder, config)  # type: ignore
+            form.config.data.save(config_path)
+        else:
+            config_path = safe_join(os.getcwd(), current_app.config['DEFAULT_CONFIG'])
+            if not os.path.exists(config_path):
+                flash('Default config file not found. Please upload one.', 'danger')
+                return make_response(redirect(url_for('main.index')))
+
+        if not allowed_file(filename_path) or (config_path and not allowed_file(config_path)):
             flash('Invalid file type. Only CSV and JSON files are allowed.', 'danger')
             return make_response(redirect(url_for('main.index')))
 
