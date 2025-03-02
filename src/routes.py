@@ -73,8 +73,8 @@ def process() -> Response:
             config_path = safe_join(upload_folder, config)  # type: ignore
             form.config.data.save(config_path)
         else:
-            config_path = safe_join(os.getcwd(), current_app.config['DEFAULT_CONFIG'])
-            if not os.path.exists(config_path):
+            config_path = safe_join(os.getcwd(), current_app.config['DEFAULT_WHATSTHEDAMAGE_CONFIG'])  # type: ignore
+            if config_path and not os.path.exists(config_path):
                 flash('Default config file not found. Please upload one.', 'danger')
                 return make_response(redirect(url_for('main.index')))
 

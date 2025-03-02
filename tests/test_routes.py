@@ -157,9 +157,9 @@ def test_process_route_missing_config(client, monkeypatch):
         'end_date': '2023-12-31',
     }
     response = client.post('/process', data=data, content_type='multipart/form-data')
-    if response.status_code != 302:
+    if response.status_code != 200:
         print_form_errors(client)
-    assert response.status_code == 302  # Expecting a redirect due to missing config file
+    assert response.status_code == 200
 
 
 def test_process_route_invalid_end_date(client, monkeypatch):

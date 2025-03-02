@@ -8,7 +8,7 @@ class AppConfig:
     UPLOAD_FOLDER: str = 'uploads'
     MAX_CONTENT_LENGTH: int = 16 * 1024 * 1024  # 16 MB
     SECRET_KEY: bytes = os.urandom(24)
-    DEFAULT_CONFIG: str = 'config.json.default'
+    DEFAULT_WHATSTHEDAMAGE_CONFIG: str = 'config.json.default'
 
 
 def create_app(config_class: Optional[AppConfig] = None) -> Flask:
@@ -19,6 +19,11 @@ def create_app(config_class: Optional[AppConfig] = None) -> Flask:
 
     if config_class:
         app.config.from_object(config_class)
+
+    # Check if external config file exists and load it
+    config_file = 'config.py'
+    if os.path.exists(config_file):
+        app.config.from_pyfile(config_file)
 
     # Ensure the upload folder exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
