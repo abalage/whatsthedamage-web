@@ -26,7 +26,10 @@
     </script>
 </head>
 <body>
-    <div class="container">
+    <header>
+        {% include 'header.html' %}
+    </header>
+    <main class="container">
         <h1 class="text-center p-2 pb-1">Processed results</h1>
         <div class="row">
             <div class="col-md-12 mb-3">
@@ -48,6 +51,9 @@
                 <p class="fw-light fs-6">Note: Should you want to have better results in importing the generated CSV file, please make sure to check "No Currenty Format" on the previous form.</p>
             </div>
         </div>
-    </div>
+    </main>
+    <footer class="bg-success text-white text-center py-3 mt-3">
+        {% include 'footer.html' %}
+    </footer>
 </body>
 </html>

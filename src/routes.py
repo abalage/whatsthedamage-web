@@ -107,7 +107,7 @@ def process() -> Response:
         # Also this leaves the choice of output format to the frontend
         result = result.replace('<table class="dataframe">', '<table class="table table-bordered table-striped">')
         result = result.replace('<tbody>', '<tbody class="table-group-divider">')
-        result = result.replace('<thead>', '<thead class="table-dark">')
+        result = result.replace('<thead>', '<thead class="table-success">')
 
         # Store the result in the session
         session['result'] = result
@@ -151,3 +151,18 @@ def download() -> Response:
     response.headers['Content-Type'] = 'text/csv'
 
     return response
+
+
+@bp.route('/legal')
+def legal() -> Response:
+    return make_response(render_template('legal.html'))
+
+
+@bp.route('/privacy')
+def privacy() -> Response:
+    return make_response(render_template('privacy.html'))
+
+
+@bp.route('/about')
+def about() -> Response:
+    return make_response(render_template('about.html'))
